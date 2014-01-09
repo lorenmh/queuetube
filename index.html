@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+</head>
+  <body ng-app="queueTube">
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    
+
+<div id="player-controller" ng-controller="PlayerController">
+  <div id="player"></div><br />
+  <span id="player-prev" ng-click="playPrevVideo()">Previous</span>
+  <span id="player-pause" ng-click="pauseVideo()">Pause</span>
+  <span id="player-play" ng-click="playVideo()">Play</span>
+  <span id="player-next" ng-click="playNextVideo()">Next</span>
+
+  <h2>Videos in queue</h2>
+  <ul>
+      <li ng-repeat="video in videoQueue track by $index">{{ video.title }}</li>
+  </ul>
+
+  <h2>Videos already played</h2>
+  <ul>
+      <li ng-repeat="video in videoHistory track by $index">{{ video.title }}</li>
+  </ul>
+
+  <!--<input type="text" ng-model="newVideo">
+  <button ng-click="addVideo()">Add</button>-->
+
+  <input type="text" ng-model="searchString">
+  <button ng-click="newSearch()">Search</button>
+  <span>Scroll down to load more</span>
+
+  <div>
+  <h2>Search dump</h2>
+  <div ng-repeat="search in searchResults track by $index">
+    <h3>{{ search.startIndex }} through {{ search.startIndex + search.itemsPerPage - 1 }} of {{ search.totalResults }}</h3>
+    <label ng-repeat="result in search.results track by $index">
+        <input 
+          type="checkbox"
+          value="{{ result.id }}"
+          ng-checked="videoQueue.indexOf(result) > -1"
+          ng-click="toggleSelection(result)" />
+        <div class="results box">
+          <h2>{{ result.title }}</h2>
+          <img ng-src="{{ result.thumbnail$url }}" />
+      </div>
+    </label>
+  </div>
+  </div>
+
+</div>
+
+<style type="text/css">
+input:checked + div.results.box{
+  background-color:red;
+}
+
+.results.box:hover{
+  background-color:green;
+}
+
+
+</style>
+
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: 'SJd4NOJlyRI',
+          playerVars: {
+            'controls': 1,
+            'iv_load_policy': 3
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      function onPlayerStateChange(event) {
+          if (event.data == YT.PlayerState.ENDED) {
+            //this first part grabs the scope of the PlayerController
+            var _scope = angular.element(document.getElementById('player-controller')).scope();
+            
+            if (_scope.videoQueue.length > 0) {
+              //then the playNextVideo function is called
+              _scope.playNextVideo()
+              //then the $apply() function is called to update the changes in the scope
+              _scope.$apply()
+            }
+          }
+        }
+
+        function stopVideo() {
+          player.stopVideo();
+        }
+
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        if (event.data != YT.PlayerState.PAUSED) {
+          event.target.playVideo();
+        }
+      }
+
+      var app = angular.module('queueTube', []);
+
+
+      //Service provider for search results
+      app.factory('searchService', function($http) {
+        return {
+          getSearchResults: function( q ) {
+            var queryString = "http://gdata.youtube.com/feeds/videos?alt=json&start-index=" + q;
+            return $http.get(queryString)
+                          .then(function(response) {
+                            return response.data;
+                          });
+          }
+        }
+      });
+
+      function filterGoogleQueryData(data) {
+        var _rtrn = {};
+        _rtrn.startIndex = data.feed.openSearch$startIndex.$t;
+        _rtrn.totalResults = data.feed.openSearch$totalResults.$t;
+        _rtrn.itemsPerPage = data.feed.openSearch$itemsPerPage.$t;
+        _rtrn.results = [];
+        for (i in data.feed.entry) {
+          var _oldObj = data.feed.entry[i];
+          var _newObj = {};
+          _newObj.id = _oldObj.id.$t.split('/').pop(); //old obj's id is a url, with the last section holding the video ID
+          _newObj.author = _oldObj.author[0].name.$t;
+          _newObj.title = _oldObj.title.$t;
+          _newObj.thumbnail$url = _oldObj.media$group.media$thumbnail[0].url;
+          _newObj.description = _oldObj.media$group.media$description.$t;
+          _newObj.duration$seconds = _oldObj.media$group.yt$duration.seconds;
+
+          _rtrn.results.push(_newObj);
+        }
+
+        return _rtrn;
+      }
+
+      var globalLoadMoreSearchResults;
+
+      app.controller('PlayerController', function( searchService, $scope ) {
+        $scope.videoQueue = [];
+        $scope.videoHistory = [];
+        $scope.searchResults = [];
+        var resultsPerQuery = 10;
+        var storedSearchString;
+        var firstSearchDone = false;
+
+        $scope.addVideo = function() {
+          $scope.videoQueue.push($scope.newVideo)
+        };
+
+        $scope.toggleSelection = function(id) {
+          var index = $scope.videoQueue.indexOf(id);
+          if (index > -1) {
+            $scope.videoQueue.splice(index, 1);
+          } else {
+            $scope.videoQueue.push(id);
+          }
+        }
+
+        $scope.playVideo = function() {
+          player.playVideo();
+        };
+
+        $scope.pauseVideo = function() {
+          player.pauseVideo();
+        };
+
+        $scope.playNextVideo = function() {
+          if ($scope.videoQueue.length > 0) {
+            var _nextVideo = $scope.videoQueue.splice(0,1)[0];
+            $scope.videoHistory.push(_nextVideo);
+            console.log(_nextVideo);
+            player.loadVideoById(_nextVideo.id); //assumes videoQueue holds the video URL
+          }
+        };
+
+        $scope.playPrevVideo = function() {
+          if ($scope.videoHistory.length > 1) { //one element is the current video 
+            var _prevVideo = $scope.videoHistory.pop();
+            $scope.videoQueue.push(_prevVideo);
+            console.log(_prevVideo);
+            player.loadVideoById($scope.videoHistory[$scope.videoHistory.length - 1].id); 
+          }
+        };
+
+
+        $scope.newSearch = function() {
+          if ($scope.searchString) {
+            firstSearchDone = false;
+            $scope.searchResults = [];
+            storedSearchString = escape($scope.searchString);
+            var _queryString = "1&max-results=" + resultsPerQuery + "&q=" + storedSearchString;
+            //.then is for the promise.  Once the request is sent, the promise is fulfilled once the response is returned
+            searchService.getSearchResults( _queryString ).then(function(response) {
+              $scope.searchResults.push(filterGoogleQueryData( response ));
+              firstSearchDone = true;
+            });
+          }
+        };
+
+        $scope.loadMoreSearchResults = function() {
+          if (firstSearchDone) {
+            var _queryIndex = $scope.searchResults.length * resultsPerQuery + 1; //+1 because gdata starts with 1 not 0
+            var _queryString = _queryIndex + "&max-results=" + resultsPerQuery + "&q=" + storedSearchString;
+            var _promiseData;
+            console.log(_queryString);
+            //.then is for the promise.  Once the request is sent, the promise is fulfilled once the response is returned
+            searchService.getSearchResults( _queryString ).then(function(response) {
+              $scope.searchResults.push(filterGoogleQueryData( response ));
+            });
+          }
+        };
+
+        globalLoadMoreSearchResults = $scope.loadMoreSearchResults;
+
+      });
+
+      $(window).scroll(function(){ 
+        if ($(window).scrollTop() == ($(document).height() - $(window).height())){
+          globalLoadMoreSearchResults();
+        }
+      });
+
+
+
+      </script>
+  </body>
+</html>
