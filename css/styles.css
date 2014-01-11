@@ -1,0 +1,59 @@
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkite-box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, sans-serif;
+}
+
+#wrapper {
+    max-width: 1000px;
+    height: 100%;
+    margin: auto;
+    padding: 10px;
+    background-color:grey;
+}
+
+#video-search-input {
+    width: 500px;
+    padding: 5px;
+}
+
+.teaser-box {
+    position: relative;
+}
+
+.teaser-info {
+    width: 100%;
+    min-height:110px;
+    padding: 10px 10px 10px 140px;
+    margin-bottom: 10px;
+    background-color:pink;
+}
+
+.teaser-image, .teaser-checkbox {
+    position: absolute;
+}
+
+.teaser-image {
+    top: 10px;
+    left: 10px;
+}
+
+.teaser-checkbox {
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.teaser-title {
+    margin: 0 0 20px 0;
+}
+
+.teaser-description {
+    margin: 0;
+}

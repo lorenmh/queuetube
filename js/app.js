@@ -28,7 +28,7 @@ function filterGoogleQueryData(data) {
     _newObj.id = _oldObj.id.$t.split('/').pop(); //old obj's id is a url, with the last section holding the video ID
     _newObj.author = _oldObj.author[0].name.$t;
     _newObj.title = _oldObj.title.$t;
-    _newObj.thumbnail$url = _oldObj.media$group.media$thumbnail[0].url;
+    _newObj.thumbnail$url = _oldObj.media$group.media$thumbnail[1].url;
     _newObj.description = _oldObj.media$group.media$description.$t;
     _newObj.duration$seconds = _oldObj.media$group.yt$duration.seconds;
 

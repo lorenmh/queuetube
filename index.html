@@ -5,65 +5,67 @@
    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
    <script src="js/ytplayer.js"></script>
    <script src="js/app.js"></script>
+   <link rel="stylesheet" type="text/css" href="css/styles.css" />
 </head>
   <body ng-app="queueTube">
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     
 
-<div id="player-controller" ng-controller="PlayerController">
-  <div id="player"></div><br />
-  <span id="player-prev" ng-click="playPrevVideo()">Previous</span>
-  <span id="player-pause" ng-click="pauseVideo()">Pause</span>
-  <span id="player-play" ng-click="playVideo()">Play</span>
-  <span id="player-next" ng-click="playNextVideo()">Next</span>
+<div id="wrapper" ng-controller="PlayerController">
+  <div class="player-section">
+    <div id="player"></div><br />
+    <span id="player-prev" ng-click="playPrevVideo()">Previous</span>
+    <span id="player-pause" ng-click="pauseVideo()">Pause</span>
+    <span id="player-play" ng-click="playVideo()">Play</span>
+    <span id="player-next" ng-click="playNextVideo()">Next</span>
 
-  <h2>Videos in queue</h2>
-  <ul>
-      <li ng-repeat="video in videoQueue track by $index">{{ video.title }}</li>
-  </ul>
+    <div class="player-list">
+      <h2 id="queue-title">Queue</h2>
+      <ul id="queue-list">
+          <li class="queue-item" ng-repeat="video in videoQueue track by $index">{{ video.title }}</li>
+      </ul>
 
-  <h2>Videos already played</h2>
-  <ul>
-      <li ng-repeat="video in videoHistory track by $index">{{ video.title }}</li>
-  </ul>
+      <h2 id="history-title">History</h2>
+      <ul id="history-list">
+          <li class="history-item" ng-repeat="video in videoHistory track by $index">{{ video.title }}</li>
+      </ul>
+    </div>
+  </div>
 
   <!--<input type="text" ng-model="newVideo">
   <button ng-click="addVideo()">Add</button>-->
 
-  <input type="text" ng-model="searchString">
-  <button ng-click="newSearch()">Search</button>
-  <span>Scroll down to load more</span>
+  <div id="video-search">
+    <form ng-submit="newSearch()">
+      <input id="video-search-input" type="text" ng-model="searchString">
+      <input id="video-search-submit" type="submit" value="Search" />
+    </form>
+  </div>
 
   <div>
-  <h2>Search dump</h2>
-  <div ng-repeat="search in searchResults track by $index">
-    <h3>{{ search.startIndex }} through {{ search.startIndex + search.itemsPerPage - 1 }} of {{ search.totalResults }}</h3>
-    <label ng-repeat="result in search.results track by $index">
-        <input 
-          type="checkbox"
-          value="{{ result.id }}"
-          ng-checked="videoQueue.indexOf(result) > -1"
-          ng-click="toggleSelection(result)" />
-        <div class="results box">
-          <h2>{{ result.title }}</h2>
-          <img ng-src="{{ result.thumbnail$url }}" />
+    <div ng-repeat="search in searchResults track by $index">
+      <h3>{{ search.startIndex }} through {{ search.startIndex + search.itemsPerPage - 1 }} of {{ search.totalResults }}</h3>
+      <div class="teaser-box" ng-repeat="result in search.results track by $index">
+        <label>
+          <input 
+            type="checkbox"
+            value="{{ result.id }}"
+            class="teaser-checkbox"
+            ng-checked="videoQueue.indexOf(result) > -1"
+            ng-click="toggleSelection(result)"
+          />
+          <img class="teaser-image" ng-src="{{ result.thumbnail$url }}" />
+          <span class="teaser-duration">{{ results.duration$seconds }}</span>
+          <div class="teaser-info">
+            <h2 class="teaser-title">{{ result.title }}</h2>
+            <p class="teaser-description">{{ result.description }}</p>
+          </div>
+        </label>
       </div>
-    </label>
-  </div>
+    </div>
   </div>
 
 </div>
 
-<style type="text/css">
-input:checked + div.results.box{
-  background-color:red;
-}
-
-.results.box:hover{
-  background-color:green;
-}
-
-
-</style>
-  </body>
+</body>
 </html>
