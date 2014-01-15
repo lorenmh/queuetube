@@ -12,28 +12,27 @@
     
 
 <div id="wrapper" ng-controller="PlayerController">
-  <div class="player-section">
+  <div id="player-section">
     <div id="player"></div><br />
     <span id="player-prev" ng-click="playPrevVideo()">Previous</span>
     <span id="player-pause" ng-click="pauseVideo()">Pause</span>
     <span id="player-play" ng-click="playVideo()">Play</span>
     <span id="player-next" ng-click="playNextVideo()">Next</span>
 
-    <div class="player-list">
-      <h2 id="queue-title">Queue</h2>
-      <ul id="queue-list">
-          <li class="queue-item" ng-repeat="video in videoQueue track by $index">{{ video.title }}</li>
-      </ul>
+    <div id="player-list">
 
-      <h2 id="history-title">History</h2>
-      <ul id="history-list">
+      <span id="queue-title" class="list-toggle active">Queue</span>
+      <ol id="queue-list">
+          <li class="queue-item" ng-repeat="video in videoQueue track by $index">{{ video.title }}</li>
+      </ol>
+
+      <span id="history-title" class="list-toggle inactive">History</span>
+      <ol id="history-list" reversed>
           <li class="history-item" ng-repeat="video in videoHistory track by $index">{{ video.title }}</li>
-      </ul>
+      </ol>
+
     </div>
   </div>
-
-  <!--<input type="text" ng-model="newVideo">
-  <button ng-click="addVideo()">Add</button>-->
 
   <div id="video-search">
     <form ng-submit="newSearch()">
@@ -42,8 +41,8 @@
     </form>
   </div>
 
-  <div>
-    <div ng-repeat="search in searchResults track by $index">
+  <div id="search-result-list">
+    <div class="search-result" ng-repeat="search in searchResults track by $index">
       <h3>{{ search.startIndex }} through {{ search.startIndex + search.itemsPerPage - 1 }} of {{ search.totalResults }}</h3>
       <div class="teaser-box" ng-repeat="result in search.results track by $index">
         <label>

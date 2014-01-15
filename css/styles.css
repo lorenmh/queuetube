@@ -10,6 +10,14 @@ body, html {
     font-family: Helvetica, sans-serif;
 }
 
+html {
+    min-height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
 #wrapper {
     max-width: 1000px;
     height: 100%;
@@ -21,6 +29,19 @@ body, html {
 #video-search-input {
     width: 500px;
     padding: 5px;
+}
+
+#player-section {
+    width: 100%;
+    padding-right: 340px;
+    position:relative;
+}
+
+#player-list {
+    width:340px;
+    position:absolute;
+    right:0;
+    top:0;
 }
 
 .teaser-box {
