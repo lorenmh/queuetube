@@ -49,7 +49,7 @@ function filterGoogleData(data) {
         rtrn.results.push(video);
     }
 
-    return _rtrn;
+    return rtrn;
 }
 
 //I'll look into using Angular to do this, but I want to be able to call 'loadMoreSearchResults' outside of Angular's scope,
