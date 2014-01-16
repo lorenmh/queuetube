@@ -25,28 +25,28 @@ app.factory('searchService', function($http) {
 });
 
 /**
- * filterGoogleQueryData takes Google's search results and puts some of the data into a new object.
+ * filterGoogleData takes Google's search results and puts some of the data into a new object.
  * This new object is used in the template instead of Google's returned JSON object.
  */
-function filterGoogleQueryData(data) {
-    var _rtrn = {}; //the object to be returned
-    _rtrn.startIndex = data.feed.openSearch$startIndex.$t;
-    _rtrn.totalResults = data.feed.openSearch$totalResults.$t;
-    _rtrn.itemsPerPage = data.feed.openSearch$itemsPerPage.$t;
-    _rtrn.results = [];
+function filterGoogleData(data) {
+    var rtrn = {}; //the object to be returned
+    rtrn.startIndex = data.feed.openSearch$startIndex.$t;
+    rtrn.totalResults = data.feed.openSearch$totalResults.$t;
+    rtrn.itemsPerPage = data.feed.openSearch$itemsPerPage.$t;
+    rtrn.results = [];
 
     //These are the 'video objects' which are used later
     for (i in data.feed.entry) {
-        var _oldObj = data.feed.entry[i];
-        var _video = {};
-        _video.id = _oldObj.id.$t.split('/').pop(); //old obj's id is a url, with the last section holding the video ID
-        _video.author = _oldObj.author[0].name.$t;
-        _video.title = _oldObj.title.$t;
-        _video.thumbnail$url = _oldObj.media$group.media$thumbnail[1].url;
-        _video.description = _oldObj.media$group.media$description.$t;
-        _video.duration$seconds = _oldObj.media$group.yt$duration.seconds;
+        var oldObj = data.feed.entry[i];
+        var video = {};
+        video.id = oldObj.id.$t.split('/').pop(); //old obj's id is a url, with the last section holding the video ID
+        video.author = oldObj.author[0].name.$t;
+        video.title = oldObj.title.$t;
+        video.thumbnail$url = oldObj.media$group.media$thumbnail[1].url;
+        video.description = oldObj.media$group.media$description.$t;
+        video.duration$seconds = oldObj.media$group.yt$duration.seconds;
 
-        _rtrn.results.push(_video);
+        rtrn.results.push(video);
     }
 
     return _rtrn;
@@ -119,7 +119,7 @@ app.controller('PlayerController', function( searchService, $scope ) {
             //calls searchService's function getSearchResults, if the promise is fulfilled it adds the filtered information to the searchResults list
             searchService.getSearchResults( _queryString )
                             .then( function(response) {
-                                $scope.searchResults.push( filterGoogleQueryData(response) );
+                                $scope.searchResults.push( filterGoogleData(response) );
                                 firstSearchDone = true; //now that the first search is done a second search can be queried
                             });
         }
@@ -134,7 +134,7 @@ app.controller('PlayerController', function( searchService, $scope ) {
             //calls searchService's function getSearchResults, if the promise is fulfilled it adds the filtered information to the searchResults list
             searchService.getSearchResults( _queryString )
                             .then( function(response) {
-                                $scope.searchResults.push( filterGoogleQueryData(response) );
+                                $scope.searchResults.push( filterGoogleData(response) );
                             });
         }
     };
