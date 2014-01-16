@@ -16,11 +16,11 @@ app.factory('searchService', function($http) {
     return {
         getSearchResults: function( q ) {
             var queryString = "http://gdata.youtube.com/feeds/videos?alt=json&start-index=" + q;
-                return $http.get(queryString)
-                              .then( function(response) { //then is a promise.  If the promise is fulfilled, call the callback and return the data
-                                  return response.data;
-                              });
-    }
+            return $http.get(queryString)
+                    .then( function(response) { //then is a promise.  If the promise is fulfilled, call the callback and return the data
+                        return response.data;
+                    });
+        }
     }
 });
 
