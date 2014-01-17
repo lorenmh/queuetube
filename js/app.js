@@ -5,6 +5,22 @@
  */
 var app = angular.module('queueTube', []);
 
+function formatSeconds(seconds) {
+  var hours = Math.floor(seconds / 3600);
+
+  var minutes = Math.floor( (seconds % 3600) / 60 );
+  if (minutes < 10) {
+    minutes = "0" + minutes;
+  }
+
+  var modSeconds = seconds % 60;
+  if (modSeconds < 10) {
+    modSeconds = "0" + modSeconds;
+  }
+
+  return (hours + ":" + minutes + ":" + modSeconds);
+}
+
 /**
  * filterGoogleData takes Google's search results and puts some of the data into
  * a new object.  This new object is used in the template instead of Google's 
@@ -27,9 +43,11 @@ function filterGoogleData(data) {
 
     video.author = entry.author[0].name.$t;
     video.title = entry.title.$t;
-    video.thumbnail$url = entry.media$group.media$thumbnail[1].url;
+    video.thumbnailUrl = entry.media$group.media$thumbnail[1].url;
     video.description = entry.media$group.media$description.$t;
-    video.duration$seconds = entry.media$group.yt$duration.seconds;
+
+    video.durationSeconds = formatSeconds(
+        entry.media$group.yt$duration.seconds);
 
     newData.results.push(video);
   }
@@ -78,7 +96,7 @@ app.controller('PlayerController', function( searchService, $scope ) {
   
   var resultsPerQuery = 10;
   var storedSearchString;
-  var firstSearchDone = false;
+  var currentlySearching = false;
 
   // This is to check the checkboxes in the search; If the video object is in
   // the videoQueue then the search box will be 'checked' need to revise by
@@ -132,42 +150,60 @@ app.controller('PlayerController', function( searchService, $scope ) {
 
   $scope.newSearch = function() {
     if ($scope.searchString) {
-      firstSearchDone = false; //sets to false so a second search can't load until this search is done
-      $scope.searchResults = []; //clears the searchResults
+      // set currentlySearching to true so we only do one search at a time
+      currentlySearching = true;
+      // clear the search results because we are doing a new search
+      $scope.searchResults = [];
+      // set the storedSearchString for future searches
       storedSearchString = escape($scope.searchString);
-      var _queryString = "1&max-results=" + resultsPerQuery + "&q=" + storedSearchString; //creates the string for querying
-      
-      //calls searchService's function getSearchResults, if the promise is fulfilled it adds the filtered information to the searchResults list
-      searchService.getSearchResults( _queryString )
-              .then( function(response) {
-                $scope.searchResults.push( filterGoogleData(response) );
-                firstSearchDone = true; //now that the first search is done a second search can be queried
-              });
+
+      var queryString = "1&max-results=" + resultsPerQuery + "&q=" + 
+        storedSearchString;
+
+      // calls searchService's function getSearchResults, if the promise is 
+      // fulfilled it adds the filtered information to the searchResults list
+      searchService.getSearchResults( queryString )
+          .then( function(response) {
+            // promise fulfilled, push the filtered results to the list
+            $scope.searchResults.push( filterGoogleData(response) );
+            currentlySearching = false;
+          });
     }
   };
 
   $scope.loadMoreSearchResults = function() {
-    if (firstSearchDone) {
-      //_queryIndex will start the search at the current location (i.e., will start the search at 41 if we've already done 4 searches)
-      var _queryIndex = $scope.searchResults.length * resultsPerQuery + 1; //+1 because gdata starts with 1 not 0
-      var _queryString = _queryIndex + "&max-results=" + resultsPerQuery + "&q=" + storedSearchString; //creates the string for querying
+    if (storedSearchString && !currentlySearching) {
+      currentlySearching = true;
+      // queryIndex will start the search at the current location 
+      // i.e. it will start the search at 41 if we've already done 4 searches
+      // GData which is used for the searches starts at 1, not 0 (hence the +1)
+      var queryIndex = $scope.searchResults.length * resultsPerQuery + 1;
 
-      //calls searchService's function getSearchResults, if the promise is fulfilled it adds the filtered information to the searchResults list
-      searchService.getSearchResults( _queryString )
-              .then( function(response) {
-                $scope.searchResults.push( filterGoogleData(response) );
-              });
+      var queryString = queryIndex + "&max-results=" + resultsPerQuery +
+        "&q=" + storedSearchString;
+
+      // calls searchService's function getSearchResults, if the promise is 
+      // fulfilled it adds the filtered information to the searchResults list
+      searchService.getSearchResults( queryString )
+        .then( function(response) {
+          // promise fulfilled, push the filtered results to the list
+          $scope.searchResults.push( filterGoogleData(response) );
+          currentlySearching = false;
+        });
     }
   };
 
-  globalLoadMoreSearchResults = $scope.loadMoreSearchResults;  //sets the global variable as the loadMoreSearchResults function for use with jQuery
+  // sets the global variable as loadMoreSearchResults for use with jQuery
+  globalLoadMoreSearchResults = $scope.loadMoreSearchResults;
 
 });
 
-//Simple jQuery function checks to see if the browser window is at the bottom of the page.  If the browser window is at the bottom of the page,
-//then using the globalLoadMoreSearchResults function, will load more search results.
+// Simple jQuery function checks to see if the browser window is at the bottom
+// of the page.  If the browser window is at the bottom of the page, then using
+// the globalLoadMoreSearchResults function, will load more search results.
 $(window).scroll(function(){ 
-  if ($(window).scrollTop() == ($(document).height() - $(window).height())){ //checks to see if the window is currently at the bottom of the content
+  // checks to see if the window is currently at the bottom of the content
+  if ($(window).scrollTop() == ($(document).height() - $(window).height())) { 
     globalLoadMoreSearchResults();
   }
 });

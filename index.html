@@ -53,8 +53,8 @@
             ng-checked="videoQueue.indexOf(result) > -1"
             ng-click="toggleSelection(result)"
           />
-          <img class="teaser-image" ng-src="{{ result.thumbnail$url }}" />
-          <span class="teaser-duration">{{ results.duration$seconds }}</span>
+          <img class="teaser-image" ng-src="{{ result.thumbnailUrl }}" />
+          <span class="teaser-duration">{{ result.durationSeconds }}</span>
           <div class="teaser-info">
             <h2 class="teaser-title">{{ result.title }}</h2>
             <p class="teaser-description">{{ result.description }}</p>

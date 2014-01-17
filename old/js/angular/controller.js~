@@ -1,7 +1,0 @@
-var myApp = angular.module('myApp', []);
-
-function ctrlOne('urlController', function($scope, $http){
-    $http.jsonp('http://filltext.com/?rows=10&fname={firstName}&lname={lastName}&pretty=true').success(function(data){
-	$scope.people = data;
-    })
-});

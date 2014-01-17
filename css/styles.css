@@ -78,3 +78,11 @@ body {
 .teaser-description {
     margin: 0;
 }
+
+.teaser-duration {
+    position: absolute;
+    bottom: 0px;
+    z-index: 2000;
+    font-weight: 700;
+    background-color: white;
+}
