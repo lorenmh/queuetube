@@ -4,3 +4,6 @@ old/
 # Website files
 favicon.*
 robots.txt
+
+# Buffered files
+*.*~
