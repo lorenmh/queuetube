@@ -5,6 +5,7 @@
    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
    <script src="js/ytplayer.js"></script>
    <script src="js/app.js"></script>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css" />
    <link rel="stylesheet" type="text/css" href="css/styles.css" />
 </head>
   <body ng-app="queueTube">
@@ -35,9 +36,9 @@
   </div>
 
   <div id="video-search">
-    <form ng-submit="newSearch()">
+    <form class="pure-form" ng-submit="newSearch()">
       <input id="video-search-input" type="text" ng-model="searchString">
-      <input id="video-search-submit" type="submit" value="Search" />
+      <input id="video-search-submit" type="submit" class="button postfix" value="Search" />
     </form>
   </div>
 

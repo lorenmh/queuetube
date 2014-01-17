@@ -8,7 +8,7 @@ var app = angular.module('queueTube', []);
 function formatSeconds(seconds) {
   var hours = Math.floor(seconds / 3600);
 
-  var minutes = Math.floor( (seconds % 3600) / 60 );
+  var minutes = Math.floor((seconds % 3600) / 60);
   if (minutes < 10) {
     minutes = "0" + minutes;
   }
@@ -69,11 +69,11 @@ app.factory('searchService', function($http) {
       var queryString = "http://gdata.youtube.com" + 
         "/feeds/videos?alt=json&start-index=" + q;
       return $http.get(queryString)
-          .then( function(response) {
-            // then is a promise.  If the promise is fulfilled then
-            // call the callback and return the data
-            return response.data;
-          });
+        .then( function(response) {
+          // then is a promise.  If the promise is fulfilled then
+          // call the callback and return the data
+          return response.data;
+        });
     }
   }
 });
@@ -163,11 +163,11 @@ app.controller('PlayerController', function( searchService, $scope ) {
       // calls searchService's function getSearchResults, if the promise is 
       // fulfilled it adds the filtered information to the searchResults list
       searchService.getSearchResults( queryString )
-          .then( function(response) {
-            // promise fulfilled, push the filtered results to the list
-            $scope.searchResults.push( filterGoogleData(response) );
-            currentlySearching = false;
-          });
+        .then( function(response) {
+          // promise fulfilled, push the filtered results to the list
+          $scope.searchResults.push( filterGoogleData(response) );
+          currentlySearching = false;
+        });
     }
   };
 
