@@ -13,14 +13,14 @@ Push to add a video.
 To remove, splice at that index.  All videos will remain in the queue until they are removed (no popping or shifting).  
 Special case for removing current video, play next video OR play previous video OR stop player THEN remove current video  
 
-:: CHANNEL SCHEMA ::  
+:: CHANNEL COLLECTION ::  
 -"channel" = a user generated string, escaped or urlified  
 -"author" = string, pointing to the user  
 -"keyword" = string, to gain access to changing / updating / saving the channel  
 -"queue" = array of video objects (queue)  
 
 
-:: USER SCHEMA ::  
+:: USER COLLECTION ::  
 -"user" = a user generated string, escaped or urlified  
 -"keyword" = a user generated string (gain access to user)  
 -"channels" = array of channel info  
